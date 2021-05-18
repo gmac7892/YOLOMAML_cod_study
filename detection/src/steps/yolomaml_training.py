@@ -16,7 +16,7 @@ class YOLOMAMLTraining():
     """
     This step handles the training of the algorithm on the base dataset
     """
-
+'''파싱 또는 디폴트 값으로 초기화 시킨다'''
     def __init__(
             self,
             dataset_config='yolov3/config/black.data',
@@ -40,29 +40,6 @@ class YOLOMAMLTraining():
             random_seed=None,
             output_dir=configs.save_dir,
     ):
-        """
-        Args:
-            dataset_config (str): path to data config file
-            model_config (str): path to model definition file
-            pretrained_weights (str): path to a file containing pretrained weights for the model
-            n_way (int): number of labels in a detection task
-            n_shot (int): number of support data in each class in an episode
-            n_query (int): number of query data in each class in an episode
-            optimizer (str): must be a valid class of torch.optim (Adam, SGD, ...)
-            learning_rate (float): learning rate fed to the optimizer
-            approx (bool): whether to use an approximation of the meta-backpropagation
-            task_update_num (int): number of updates inside each episode
-            print_freq (int): inside an epoch, print status update every print_freq episodes
-            validation_freq (int): inside an epoch, frequency with which we evaluate the model on the validation set
-            n_epoch (int): number of meta-training epochs
-            n_episode (int): number of episodes per epoch during meta-training
-            objectness_threshold (float): at evaluation time, only keep boxes with objectness above this threshold
-            nms_threshold (float): threshold for non maximum suppression, at evaluation time
-            iou_threshold (float): threshold for intersection over union
-            image_size (int): size of images (square)
-            random_seed (int): seed for random instantiations ; if none is provided, a seed is randomly defined
-            output_dir (str): path to experiments output directory
-        """
 
         self.dataset_config = dataset_config
         self.model_config = model_config
@@ -84,22 +61,26 @@ class YOLOMAMLTraining():
         self.image_size = image_size
         self.random_seed = random_seed
         self.checkpoint_dir = output_dir
+        
+''' 여기서 새로운 변수 등장. device는 gpu를 주로 쓰기위한 스위치
+writer는 SummaryWriter 클래스는 지정된 디렉토리에 이벤트 파일을 만들고 여기에 요약 및 이벤트를 추가할 수 있는 고급 API를 제공합니다. 
+클래스는 파일 내용을 비동기적으로 업데이트합니다. 이를 통해 훈련 프로그램은 훈련 속도를 늦추지 않고 훈련 루프에서 직접 파일에 데이터를 추가하는 방법을 호출할 수 있다.'''
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.writer = SummaryWriter(log_dir=output_dir)
 
     def apply(self):
         """
-        Execute the YOLOMAMLTraining step
+        YOLOMAMLTraining step 실행
         Returns:
-            dict: a dictionary containing the whole state of the model that gave the higher validation accuracy
+            더 높은 validation을 주는 모델의 전체상태를 제공하는 dict
         """
-        set_and_print_random_seed(self.random_seed, True, self.checkpoint_dir)
+        set_and_print_random_seed(self.random_seed, True, self.checkpoint_dir) # 모델 재현을 위해 torch, numpy, cudnn 랜덤시드 고정
 
-        data_config = parse_data_config(self.dataset_config)
-        train_path = data_config["train"]
-        train_dict_path = data_config.get("train_dict_path", None)
-        valid_path = data_config.get("valid", None)
+        data_config = parse_data_config(self.dataset_config) # config파일을 한줄씩 읽어와서, 객체형태로 리턴([gpus], [workers], [train], [val 경로], [클래스 수] 등...)
+        train_path = data_config["train"] # data_cinfig에서 train경로 가져옴
+        train_dict_path = data_config.get("train_dict_path", None) #dict은 아마도 파일과 라벨을 딕셔너리 형식으로 묶어 놓은것 같음
+        valid_path = data_config.get("valid", None) # data_cinfig에서 val경로 가져옴
         valid_dict_path = data_config.get("valid_dict_path", None)
 
         base_loader = self._get_data_loader(train_path, train_dict_path)
@@ -167,8 +148,8 @@ class YOLOMAMLTraining():
     def _get_data_loader(self, path_to_data_file, path_to_images_per_label):
         """
         Args:
-            path_to_data_file (str): path to file containing paths to images
-            path_to_images_per_label (str): path to pickle file containing the dictionary of images per label
+            path_to_data_file (str): 이미지 경로
+            path_to_images_per_label (str): 라벨과 이미지가 묶인 딕셔너리를 피클파일의 경로
         Returns:
             torch.utils.data.DataLoader: samples data in the shape of a detection task
         """
