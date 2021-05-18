@@ -23,6 +23,7 @@ from detection.src.steps import YOLOMAMLTraining
 @click.option('--random_seed', default=None)
 @click.option('--output_dir', default='./output')
 
+'''1차적으로 command라인 인터페이스를 통해 변수를 지정 할 수 있음. 지정 안할 시 디폴트 값으로 설정'''
 def main(
         dataset_config,
         model_config,
@@ -69,6 +70,8 @@ def main(
         random_seed (int): seed for random instantiations ; if none is provided, a seed is randomly defined
         output_dir (str): output경로
     """
+
+'''위에서 파싱된 값이나, 디폴트 값이 YOLOMAMLTraining 클래스의 init 부분으로 입력되어 초기화 시킨다.'''
     step = YOLOMAMLTraining(
         dataset_config,
         model_config,
