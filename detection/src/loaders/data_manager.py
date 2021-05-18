@@ -8,19 +8,19 @@ from detection.src.yolov3.utils.datasets import ListDataset
 
 class DetectionSetDataManager():
     """
-    Data Manager used for YOLOMAML
+    YOLOMAML을 사용하기 위한 데이터 매니져
     """
     def __init__(self, n_way, n_support, n_query, n_episode, image_size):
         """
         Args:
-            n_way (int): number of different classes in a detection class
-            n_support (int): number of images in the support set with an instance of one class,
-            for each of the n_way classes
-            n_query (int): number of images in the query set with an instance of one class,
-            for each of the n_way classes
-            n_episode (int): number of episodes per epoch
-            image_size (int): size of images (square)
+            n_way (int): 샘플링할 클래스 수
+            n_support (int): 소포트셋에 넣을 이미지 갯수
+            n_query (int): 각 n_way 클래스에 대해 하나의 클래스로 구성된 쿼리 세트의 이미지 수
+            n_episode (int): epoch당 에피소드 수
+            image_size (int): 이미지 크기
         """
+        
+        '''yolomaml_training.py에서 받은 변수들로 초기화'''
         self.n_way = n_way
         self.n_support = n_support
         self.n_query = n_query
