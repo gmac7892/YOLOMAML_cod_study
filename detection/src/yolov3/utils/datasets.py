@@ -47,7 +47,7 @@ class ImageFolder(Dataset):
         # Extract image as PyTorch tensor
         img = transforms.ToTensor()(Image.open(img_path)) # indexing
         # Pad to square resolution
-        img, _ = pad_to_square(img, 0)
+        img, _ = pad_to_square(img, 0) #이미지 정사각형으로 패딩(yolo 특징); 
         # Resize
         img = resize(img, self.img_size)
 
@@ -62,10 +62,7 @@ class ListDataset(Dataset):
         with open(list_path, "r") as file:
             self.img_files = file.readlines()
 
-        self.label_files = [
-            path.replace("images", "labels").replace(".png", ".txt").replace(".jpg", ".txt")
-            for path in self.img_files
-        ]
+        self.label_files = [path.replace("images", "labels").replace(".png", ".txt").replace(".jpg", ".txt") for path in self.img_files]
         self.img_size = img_size
         self.max_objects = 100
         self.augment = augment
@@ -107,7 +104,7 @@ class ListDataset(Dataset):
         _, h, w = img.shape
         h_factor, w_factor = (h, w) if self.normalized_labels else (1, 1)
         # Pad to square resolution
-        img, pad = pad_to_square(img, 0)
+        img, pad = pad_to_square(img, 0) #이미지 정사각형으로 패딩(yolo 특징); 
         _, padded_h, padded_w = img.shape
 
         # ---------
@@ -124,7 +121,7 @@ class ListDataset(Dataset):
             y1 = h_factor * (boxes[:, 2] - boxes[:, 4] / 2)
             x2 = w_factor * (boxes[:, 1] + boxes[:, 3] / 2)
             y2 = h_factor * (boxes[:, 2] + boxes[:, 4] / 2)
-            # Adjust for added padding
+            # 레터박스에 맞게 라벨값도 패딩
             x1 += pad[0]
             y1 += pad[2]
             x2 += pad[1]
@@ -136,7 +133,7 @@ class ListDataset(Dataset):
             boxes[:, 4] *= h_factor / padded_h
 
             targets = torch.zeros((len(boxes), 6))
-            targets[:, 1:] = boxes
+            targets[:, 1:] = boxes 
 
         # Apply augmentations
         if self.augment:
