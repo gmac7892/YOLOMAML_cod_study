@@ -35,7 +35,7 @@ class DetectionSetDataManager():
         Returns:
             DataLoader: samples data in the shape of a detection task
         """
-        dataset = ListDataset(path_to_data_file, img_size=self.image_size)
+        dataset = ListDataset(path_to_data_file, img_size=self.image_size) # img_path, img(레터박스 상태로 패딩된 이미지), targets(레터박스 상태로 패딩된 BBOx값)을 객체로 받아옴
         sampler = DetectionTaskSampler(
             dataset,
             self.n_way,
@@ -84,7 +84,7 @@ def create_dict_images_per_label(data_source):
 
 class DetectionTaskSampler(torch.utils.data.Sampler):
     """
-    Samples elements in detection episodes of defined shape.
+    받아온 데이터셋에서 샘플링을 통해 Task 구성하기
     """
     def __init__(self, data_source, n_way, n_support, n_query, n_episodes, path_to_images_per_label=None):
         """
